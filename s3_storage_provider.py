@@ -15,7 +15,6 @@
 # limitations under the License.
 
 import logging
-import os
 import threading
 
 from six import string_types
@@ -57,7 +56,6 @@ class S3StorageProviderBackend(StorageProvider):
 
     def __init__(self, hs, config):
         self._module_api: ModuleApi = hs.get_module_api()
-        self.cache_directory = hs.config.media.media_store_path
         self.bucket = config["bucket"]
         self.prefix = config["prefix"]
         # A dictionary of extra arguments for uploading files.
@@ -126,7 +124,7 @@ class S3StorageProviderBackend(StorageProvider):
         return await self._module_api.defer_to_threadpool(
             self._s3_pool,
             self._get_s3_client().upload_file,
-            Filename=os.path.join(self.cache_directory, path),
+            Filename=file_info.upload_path,
             Bucket=self.bucket,
             Key=self.prefix + path,
             ExtraArgs=self.extra_args,
